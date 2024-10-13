@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ticketNumElement = document.getElementById("ticket-num");
     const buyTicketButton = document.getElementById("buy-ticket");
   
-    // Event 1: Fetch and display all films on page load
+    // fetch event
     fetch("http://localhost:3000/films")
       .then((response) => response.json())
       .then((films) => {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
           li.innerText = film.title;
           li.dataset.id = film.id;
   
-          // Event 2: Display film details when a film is clicked
+          // display event
           li.addEventListener("click", () => displayFilmDetails(film));
           filmList.appendChild(li);
         });
@@ -35,11 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
       showtimeElement.innerText = film.showtime;
       ticketNumElement.innerText = availableTickets;
   
-      // Enable/disable the buy ticket button based on availability
+      // Enable/disable the buy ticket button 
       buyTicketButton.innerText = availableTickets > 0 ? "Buy Ticket" : "Sold Out";
       buyTicketButton.disabled = availableTickets === 0;
   
-      // Event 3: Handle ticket purchase
+      // Handle ticket purchase
       buyTicketButton.onclick = () => {
         if (availableTickets > 0) {
           buyTicket(film);
@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({ tickets_sold: newTicketsSold }),
       })
@@ -63,12 +64,27 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(updatedFilm => {
           // Update the display with the new film details
           displayFilmDetails(updatedFilm);
+        })
+
+          fetch(`http://localhost:3000/films/${film.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(updatedFilm),
+          })
+          .then(response => response.json())
+          .then(updatedFilm => {
+            // Update the display with the new film details
+            displayFilmDetails(updatedFilm);
   
           // POST new ticket to the tickets endpoint
           fetch("http://localhost:3000/tickets", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "Accept": "application/json",
             },
             body: JSON.stringify({
               film_id: film.id,
@@ -84,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "DELETE",
       })
         .then(() => {
-          // Remove the film from the list in the UI
+          // Remove the film from the list 
           const filmItem = document.querySelector(`[data-id='${filmId}']`);
           if (filmItem) {
             filmList.removeChild(filmItem);
